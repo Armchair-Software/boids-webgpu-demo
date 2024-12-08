@@ -6,7 +6,7 @@ For the previous demos, see:
 - https://github.com/Armchair-Software/webgpu-demo
 - https://github.com/Armchair-Software/webgpu-demo2
 
-![image](https://github.com/user-attachments/assets/6e757524-1334-420f-991d-7d8a4445eeb4)
+![image](https://github.com/user-attachments/assets/55220585-f1f7-499b-ab94-20761f0bddfc)
 
 ## Live demo
 Live demo: https://armchair-software.github.io/boids-webgpu-demo/
