@@ -128,16 +128,17 @@ add_executable(client
   gui/gui_renderer.cpp
   render/webgpu_renderer.cpp
   # shared libraries:
-  logstorm/log_line_helper.cpp
-  logstorm/manager.cpp
-  logstorm/sink/base.cpp
-  logstorm/sink/console.cpp
-  logstorm/timestamp.cpp
   flockstorm/grid/base.cpp
   flockstorm/grid/boid.cpp
   flockstorm/grid/get_cell.cpp
   flockstorm/manager.cpp
   flockstorm/obstacle/sphere.cpp
+  logstorm/log_line_helper.cpp
+  logstorm/manager.cpp
+  logstorm/sink/base.cpp
+  logstorm/sink/console.cpp
+  logstorm/timestamp.cpp
+  memorystorm/memorystorm.cpp
   # 3rd party libraries:
   include/imgui/imgui.cpp
   include/imgui/imgui_demo.cpp
