@@ -2,7 +2,7 @@
 
 This is a demonstration of [FlockStorm](https://github.com/VoxelStorm-Ltd/flockstorm) running on the basic WebGPU engine demonstrated in the earlier demos.
 
-This also demonstrates packaging for native platforms with Electron, and building those packages in CI steps.
+This also (incidentally) demonstrates packaging for native platforms with Electron, and building those packages in CI steps.  Those parts aren't necessary for the main demo, however.
 
 For the previous demos, see:
 - https://github.com/Armchair-Software/webgpu-demo
