@@ -90,8 +90,9 @@ std::string enum_wgpu_name(Tcpp enum_in) {
 
 }
 
-webgpu_renderer::webgpu_renderer(logstorm::manager &this_logger)
-  : logger{this_logger} {
+webgpu_renderer::webgpu_renderer(logstorm::manager &this_logger, unsigned int this_num_instances)
+  : logger{this_logger},
+    num_instances{this_num_instances} {
   /// Construct a WebGPU renderer and populate those members that don't require delayed init
   if(!webgpu.instance) throw std::runtime_error{"Could not initialize WebGPU"};
 
@@ -869,7 +870,7 @@ void webgpu_renderer::build_scene() {
   );
 }
 
-void webgpu_renderer::draw(vec2f const& rotation) {
+void webgpu_renderer::draw(std::vector<vec3f> const &boid_positions) {
   /// Draw a frame
   {
     wgpu::CommandEncoderDescriptor command_encoder_descriptor{
@@ -880,7 +881,6 @@ void webgpu_renderer::draw(vec2f const& rotation) {
     {
       // set up matrices
       static vec2f angles;
-      angles += rotation;
       angles.x += 0.01f;                                                        // constant slow spin
       quatf model_rotation{quatf::from_euler_angles_rad(0.0, angles.x, 0.0)};
 
@@ -902,13 +902,10 @@ void webgpu_renderer::draw(vec2f const& rotation) {
       // per-instance data
       std::vector<instance> instance_data;
       instance_data.reserve(num_instances);
-      for(unsigned int y = 0; y != grid_size.y; ++y) {
-        for(unsigned int z = 0; z != grid_size.z; ++z) {
-          for(unsigned int x = 0; x != grid_size.x; ++x) {
-            mat4f const offset{mat4f::create_translation(((vec3f{vec3ui{x, y, z}} - (vec3f{grid_size} * 0.5f)) * 3.0f) + vec3f{0.0f, 0.0f, 70.0f})};
-            instance_data.emplace_back(offset * model_rotation.transform());
-          }
-        }
+      for(auto const &position : boid_positions) {
+        mat4f const offset{mat4f::create_translation(position)};
+        // TODO: generate orientation from velocities
+        instance_data.emplace_back(offset * model_rotation.transform());
       }
 
       // update buffer contents

@@ -50,7 +50,7 @@ public:
 
   static unsigned int constexpr grid_count{50};
   static vec3ui constexpr grid_size{grid_count, 10, grid_count};
-  static unsigned int constexpr num_instances{grid_size.x * grid_size.y * grid_size.z};
+  unsigned int const num_instances{0};
 
   uniforms uniform_data;
   indirect_indexed_command indirect_data;
@@ -87,7 +87,7 @@ private:
   std::function<void()> main_loop_callback;                                     // the callback that is called repeatedly for the main loop after init
 
 public:
-  webgpu_renderer(logstorm::manager &logger);
+  webgpu_renderer(logstorm::manager &logger, unsigned int num_instances);
 
   void init(std::function<void(webgpu_data const&)> &&postinit_callback, std::function<void()> &&main_loop_callback);
 
@@ -103,7 +103,7 @@ private:
   void build_scene();
 
 public:
-  void draw(vec2f const& rotation);
+  void draw(std::vector<vec3f> const &boid_positions);
 };
 
 }
