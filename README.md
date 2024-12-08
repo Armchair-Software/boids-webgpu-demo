@@ -1,19 +1,18 @@
-# WebGPU Emscripten demo 3 for the Armchair Engine
+# Boids demo with WebGPU & Emscripten for the Armchair Engine
 
-This is part two of a simple proof of concept, a minimal 3D engine written in C++, compiled to WASM with Emscripten.  Running in the browser, rendering with WebGPU.
+This is a demonstration of FlockStorm running on the basic WebGPU engine demonstrated in the earlier demos.
 
 For the previous demos, see:
 - https://github.com/Armchair-Software/webgpu-demo
 - https://github.com/Armchair-Software/webgpu-demo2
 
-Differences: TODO
-
 ## Live demo
-Live demo: https://armchair-software.github.io/webgpu-demo3/
+Live demo: https://armchair-software.github.io/boids-webgpu-demo/
 
 This requires Firefox Nightly, or a recent version of Chrome or Chromium, with webgpu and Vulkan support explicitly enabled.
 
 ## Dependencies
+- [FlockStorm](https://github.com/VoxelStorm-Ltd/flockstorm) (included)
 - [Emscripten](https://emscripten.org/)
 - CMake
 - [VectorStorm](https://github.com/Armchair-Software/vectorstorm) (included)
