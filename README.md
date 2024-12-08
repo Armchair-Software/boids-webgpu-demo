@@ -2,6 +2,8 @@
 
 This is a demonstration of [FlockStorm](https://github.com/VoxelStorm-Ltd/flockstorm) running on the basic WebGPU engine demonstrated in the earlier demos.
 
+This also (incidentally) demonstrates packaging for native platforms with Electron, and building those packages in CI steps.  Those parts aren't necessary for the main demo, however.
+
 For the previous demos, see:
 - https://github.com/Armchair-Software/webgpu-demo
 - https://github.com/Armchair-Software/webgpu-demo2
@@ -11,7 +13,7 @@ For the previous demos, see:
 ## Live demo
 Live demo: https://armchair-software.github.io/boids-webgpu-demo/
 
-This requires Firefox Nightly, or a recent version of Chrome or Chromium, with webgpu and Vulkan support explicitly enabled.
+This requires Firefox Nightly, or a recent version of Chrome or Chromium, with webgpu and Vulkan support explicitly enabled.  On mobile, Chrome Canary is confirmed to work on phones that support Vulkan 1.3 upwards.
 
 ## Dependencies
 - [FlockStorm](https://github.com/VoxelStorm-Ltd/flockstorm) (included)
