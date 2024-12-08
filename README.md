@@ -1,10 +1,12 @@
 # Boids demo with WebGPU & Emscripten for the Armchair Engine
 
-This is a demonstration of FlockStorm running on the basic WebGPU engine demonstrated in the earlier demos.
+This is a demonstration of [FlockStorm](https://github.com/VoxelStorm-Ltd/flockstorm) running on the basic WebGPU engine demonstrated in the earlier demos.
 
 For the previous demos, see:
 - https://github.com/Armchair-Software/webgpu-demo
 - https://github.com/Armchair-Software/webgpu-demo2
+
+![image](https://github.com/user-attachments/assets/6e757524-1334-420f-991d-7d8a4445eeb4)
 
 ## Live demo
 Live demo: https://armchair-software.github.io/boids-webgpu-demo/
