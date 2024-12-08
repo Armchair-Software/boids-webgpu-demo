@@ -133,6 +133,11 @@ add_executable(client
   logstorm/sink/base.cpp
   logstorm/sink/console.cpp
   logstorm/timestamp.cpp
+  flockstorm/grid/base.cpp
+  flockstorm/grid/boid.cpp
+  flockstorm/grid/get_cell.cpp
+  flockstorm/manager.cpp
+  flockstorm/obstacle/sphere.cpp
   # 3rd party libraries:
   include/imgui/imgui.cpp
   include/imgui/imgui_demo.cpp
