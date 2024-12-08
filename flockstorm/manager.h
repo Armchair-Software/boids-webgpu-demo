@@ -48,10 +48,12 @@ private:
     std::array<vec3f, num_boids> positions;
     std::array<vec3f, num_boids> velocities;
     std::array<vec3f, num_boids> accelerations;
+    std::array<unsigned int, num_boids> grid_neighbour_boids;
   #else
     std::vector<vec3f> positions{num_boids};
     std::vector<vec3f> velocities{num_boids};
     std::vector<vec3f> accelerations{num_boids};
+    std::vector<unsigned int> grid_neighbour_boids{num_boids};
   #endif // FLOCKSTORM_USE_STACK
 
   // space-dividing grids for influencers of the various boid forces
@@ -84,7 +86,7 @@ public:
   void set_velocity(    unsigned int boid_id, vec3f const &new_velocity);
   void set_acceleration(unsigned int boid_id, vec3f const &new_acceleration);
 
-  std::vector<unsigned int> get_grid_neighbour_boids(vec3i const &our_grid_square, grid::boid const &grid);
+  void update_grid_neighbour_boids(vec3i const &our_grid_square, grid::boid const &grid);
   void populate_grids();
   void dump_grid_memory_usage();
 

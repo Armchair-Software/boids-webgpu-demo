@@ -129,10 +129,10 @@ void manager::set_acceleration(unsigned int boid_id, vec3f const &new_accelerati
   #endif // NDEBUG
 }
 
-std::vector<unsigned int> manager::get_grid_neighbour_boids(vec3i const &our_grid_cell,
-                                                            grid::boid const &grid) {
+void manager::update_grid_neighbour_boids(vec3i const &our_grid_cell, grid::boid const &grid) {
   /// Return a list of boids in neighbouring grid cells in the specified grid
-  std::vector<unsigned int> other_boids;
+  grid_neighbour_boids.clear();
+  //grid_neighbour_boids.reserve(num_boids);
   // TODO: replace the above with boost's small vector
   for(int offset_x = -1; offset_x != 2; ++offset_x) {
     for(int offset_y = -1; offset_y != 2; ++offset_y) {
@@ -142,11 +142,10 @@ std::vector<unsigned int> manager::get_grid_neighbour_boids(vec3i const &our_gri
           continue;                                                             // nothing in this grid cell
         }
         auto &grid_cell(it->second);
-        other_boids.insert(other_boids.end(), grid_cell.begin(), grid_cell.end());
+        grid_neighbour_boids.insert(grid_neighbour_boids.end(), grid_cell.begin(), grid_cell.end());
       }
     }
   }
-  return other_boids;
 }
 
 void manager::populate_grids() {
@@ -284,7 +283,8 @@ void manager::update() {
       // calculate collision avoidance acceleration from other boids
       vec3i const collision_avoidance_grid_cell(collision_avoidance_grid.get_cell(positions[i]));
       // TODO: combine the above with the grid update below
-      for(unsigned int j : get_grid_neighbour_boids(collision_avoidance_grid_cell, collision_avoidance_grid)) {
+      update_grid_neighbour_boids(collision_avoidance_grid_cell, collision_avoidance_grid);
+      for(unsigned int j : grid_neighbour_boids) {
         if(j == i) {
           continue;
         }
@@ -310,7 +310,8 @@ void manager::update() {
       unsigned int flock_count = 0;
       vec3i const velocity_matching_grid_cell(velocity_matching_grid.get_cell(positions[i]));
       // TODO: combine the above with the grid update below
-      for(unsigned int j : get_grid_neighbour_boids(velocity_matching_grid_cell, velocity_matching_grid)) {
+      update_grid_neighbour_boids(velocity_matching_grid_cell, velocity_matching_grid);
+      for(unsigned int j : grid_neighbour_boids) {
         if(j == i) {
           continue;
         }
@@ -341,7 +342,8 @@ void manager::update() {
       unsigned int flock_count = 0;
       vec3i const flock_centering_grid_cell(flock_centering_grid.get_cell(positions[i]));
       // TODO: combine the above with the grid update below
-      for(unsigned int j : get_grid_neighbour_boids(flock_centering_grid_cell, flock_centering_grid)) {
+      update_grid_neighbour_boids(flock_centering_grid_cell, flock_centering_grid);
+      for(unsigned int j : grid_neighbour_boids) {
         if(j == i) {
           continue;
         }
