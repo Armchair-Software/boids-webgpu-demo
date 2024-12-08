@@ -12,12 +12,7 @@ class game_manager {
   render::webgpu_renderer renderer{logger};                                     // WebGPU rendering system
   gui::gui_renderer gui{logger};                                                // GUI top level
 
-
   vec2f cube_rotation;
-
-  void register_gamepad_events();
-  void set_gamepad_callbacks(gamepad& this_gamepad);
-  void handle_gamepad_events();
 
   void loop_main();
 
@@ -45,7 +40,6 @@ game_manager::game_manager() {
 
 void game_manager::loop_main() {
   /// Main pseudo-loop
-  handle_gamepad_events();
   gui.draw();
   renderer.draw(cube_rotation);
 }
