@@ -17,6 +17,7 @@ This requires Firefox Nightly, or a recent version of Chrome or Chromium, with w
 - CMake
 - [VectorStorm](https://github.com/Armchair-Software/vectorstorm) (included)
 - [LogStorm](https://github.com/VoxelStorm-Ltd/logstorm) (included)
+- [MemoryStorm](https://github.com/VoxelStorm-Ltd/memorystorm) (included)
 - [magic_enum](https://github.com/Neargye/magic_enum) (included)
 - [dear imgui](https://github.com/ocornut/imgui) with the proposed `imgui_impl_emscripten` backend (included)
 
