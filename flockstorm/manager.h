@@ -11,19 +11,19 @@ namespace flockstorm {
 class manager {
 public:
   // global simulation parameters
-  unsigned int const num_boids = 1000;
+  unsigned int const num_boids{1000};
 
-  float collision_avoidance_range = 3.5f;                                       // default values are optimised for ticks at 10Hz
-  float collision_avoidance_scale = 0.10f;
-  float velocity_matching_range   = 5.0f;
-  float velocity_matching_scale   = 0.05f;
-  float flock_centering_range     = 7.0f;
-  float flock_centering_scale     = 0.06f;
-  float goal_seeking_scale        = 0.02f;
-  float acceleration_max          = 0.30f;
-  float damping_factor            = 0.953f;
-  //float speed_limit_max           = 1.00f;
-  //float speed_limit_min           = 0.01f;
+  float collision_avoidance_range{3.5f};                                       // default values are optimised for ticks at 10Hz
+  float collision_avoidance_scale{0.10f};
+  float velocity_matching_range{  5.0f};
+  float velocity_matching_scale{  0.05f};
+  float flock_centering_range{    7.0f};
+  float flock_centering_scale{    0.06f};
+  float goal_seeking_scale{       0.02f};
+  float acceleration_max{         0.30f};
+  float damping_factor{           0.953f};
+  //float speed_limit_max{          1.00f};
+  //float speed_limit_min{          0.01f};
 
   vec3f goal_position;                                                          // the overall flock location goal
   struct {
@@ -36,12 +36,12 @@ public:
 
 private:
   // pre-computed quantities
-  float collision_avoidance_range_sq = 0.0f;                                    // automatically updated
-  float velocity_matching_range_sq   = 0.0f;
-  float flock_centering_range_sq     = 0.0f;
-  float acceleration_max_sq          = 0.0f;
-  //float speed_limit_max_sq           = 0.0f;
-  //float speed_limit_min_sq           = 0.0f;
+  float collision_avoidance_range_sq{0.0f};                                     // automatically updated
+  float velocity_matching_range_sq{  0.0f};
+  float flock_centering_range_sq{    0.0f};
+  float acceleration_max_sq{         0.0f};
+  //float speed_limit_max_sq{          0.0f};
+  //float speed_limit_min_sq{          0.0f};
 
   // individual boid properties - use struct-of-arrays layout for speed
   #ifdef FLOCKSTORM_USE_STACK

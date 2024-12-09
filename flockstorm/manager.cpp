@@ -66,7 +66,7 @@ void manager::distribute_boids_randomly(aabb3f const &bounding_box, std::mt19937
   vec3<std::uniform_real_distribution<float>> pos_dist(std::uniform_real_distribution<float>{bounding_box.min.x, bounding_box.max.x},
                                                        std::uniform_real_distribution<float>{bounding_box.min.y, bounding_box.max.y},
                                                        std::uniform_real_distribution<float>{bounding_box.min.z, bounding_box.max.z});
-  for(unsigned int i = 0; i != num_boids; ++i) {
+  for(unsigned int i{0}; i != num_boids; ++i) {
     positions[i].assign(pos_dist.x(rng), pos_dist.y(rng), pos_dist.z(rng));
     velocities[i].assign();
     accelerations[i].assign();
@@ -134,9 +134,9 @@ void manager::update_grid_neighbour_boids(vec3i const &our_grid_cell, grid::boid
   grid_neighbour_boids.clear();
   //grid_neighbour_boids.reserve(num_boids);
   // TODO: replace the above with boost's small vector
-  for(int offset_x = -1; offset_x != 2; ++offset_x) {
-    for(int offset_y = -1; offset_y != 2; ++offset_y) {
-      for(int offset_z = -1; offset_z != 2; ++offset_z) {
+  for(int offset_x{-1}; offset_x != 2; ++offset_x) {
+    for(int offset_y{-1}; offset_y != 2; ++offset_y) {
+      for(int offset_z{-1}; offset_z != 2; ++offset_z) {
         auto const &it(grid.grid.find(our_grid_cell + vec3i{offset_x, offset_y, offset_z}));
         if(it == grid.grid.end()) {
           continue;                                                             // nothing in this grid cell
@@ -160,15 +160,15 @@ void manager::populate_grids() {
   flock_centering_grid.clear();
 
   // fixed obstacle grids
-  for(unsigned int i = 0; i != obstacles.spheres.size(); ++i) {
+  for(unsigned int i{0}; i != obstacles.spheres.size(); ++i) {
     auto const &obstacle(obstacles.spheres[i]);
-    float const bounding_box_radius = obstacle.radius + collision_avoidance_obstacle_grid.scale;
+    float const bounding_box_radius{obstacle.radius + collision_avoidance_obstacle_grid.scale};
     aabb3f const obstacle_bounds(obstacle.position - bounding_box_radius,
                                  obstacle.position + bounding_box_radius);
     aabb3i const obstacle_bounds_grid(collision_avoidance_obstacle_grid.get_cell(obstacle_bounds.min),
                                       collision_avoidance_obstacle_grid.get_cell(obstacle_bounds.max));
     vec3i cell;
-    float bounding_box_radius_padded_sq = bounding_box_radius + (collision_avoidance_obstacle_grid.scale * 0.5f);
+    float bounding_box_radius_padded_sq{bounding_box_radius + (collision_avoidance_obstacle_grid.scale * 0.5f)};
     bounding_box_radius_padded_sq *= bounding_box_radius_padded_sq;
     #ifdef DEBUG_FLOCKSTORM
       std::cout << "FlockStorm: DEBUG: obstacle " << i << " bounding box " << obstacle_bounds << std::endl;
@@ -177,7 +177,7 @@ void manager::populate_grids() {
       for(cell.y = obstacle_bounds_grid.min.y; cell.y != obstacle_bounds_grid.max.y; ++cell.y) {
         for(cell.z = obstacle_bounds_grid.min.z; cell.z != obstacle_bounds_grid.max.z; ++cell.z) {
           vec3f const cell_centre_coords((vec3f(cell) + 0.5f) * collision_avoidance_obstacle_grid.scale);
-          float const dist_sq = (cell_centre_coords - obstacle.position).length_sq();
+          float const dist_sq{(cell_centre_coords - obstacle.position).length_sq()};
           if(dist_sq <= bounding_box_radius_padded_sq) {
             collision_avoidance_obstacle_grid.grid[cell].emplace_back(i);
             #ifdef DEBUG_FLOCKSTORM
@@ -190,7 +190,7 @@ void manager::populate_grids() {
   }
 
   // boid grids
-  for(unsigned int i = 0; i != num_boids; ++i) {
+  for(unsigned int i{0}; i != num_boids; ++i) {
     {
       vec3i const collision_avoidance_grid_cell(collision_avoidance_grid.get_cell(positions[i]));
       collision_avoidance_grid.occupied_cells[i] = collision_avoidance_grid_cell;
@@ -215,10 +215,10 @@ void manager::populate_grids() {
 
 void manager::dump_grid_memory_usage() {
   /// Output statistics about grid memory usage
-  size_t collision_avoidance_grid_size          = sizeof(collision_avoidance_grid);
-  size_t collision_avoidance_obstacle_grid_size = sizeof(collision_avoidance_obstacle_grid);
-  size_t velocity_matching_grid_size            = sizeof(velocity_matching_grid);
-  size_t flock_centering_grid_size              = sizeof(flock_centering_grid);
+  size_t collision_avoidance_grid_size{         sizeof(collision_avoidance_grid)};
+  size_t collision_avoidance_obstacle_grid_size{sizeof(collision_avoidance_obstacle_grid)};
+  size_t velocity_matching_grid_size{           sizeof(velocity_matching_grid)};
+  size_t flock_centering_grid_size{             sizeof(flock_centering_grid)};
   for(auto const &it : collision_avoidance_grid.grid) {
     collision_avoidance_grid_size += it.second.size() * sizeof(unsigned int);
   }
@@ -241,9 +241,9 @@ void manager::update() {
   /// Update boids
   for(unsigned int i = 0; i != num_boids; ++i) {
     // calculate accelerations on this boid this tick
-    auto &position     = positions[i];
-    //auto &velocity     = velocities[i];
-    auto &acceleration = accelerations[i];
+    auto const &position{positions[i]};
+    //auto const &velocity{velocities[i]};
+    auto &acceleration{accelerations[i]};
     acceleration.assign();
 
     {
@@ -260,11 +260,11 @@ void manager::update() {
       if(it != collision_avoidance_obstacle_grid.grid.end()) {
         for(auto const &obstacle_id : it->second) {
           auto const &obstacle(obstacles.spheres[obstacle_id]);
-          float const dist_centre_sq = (obstacle.position - position).length_sq();
+          float const dist_centre_sq{(obstacle.position - position).length_sq()};
           if(dist_centre_sq < obstacle.collision_avoidance_range_sq) {
-            float dist_sq = (obstacle.position - position).length() - obstacle.radius;
+            float dist_sq{(obstacle.position - position).length() - obstacle.radius};
             dist_sq *= dist_sq;
-            float const acc = collision_avoidance_scale / dist_sq;
+            float const acc{collision_avoidance_scale / dist_sq};
             acceleration += (obstacle.position - position).normalise_copy() * -acc; // division by zero possible - assuming we never overlap the centre of an obstacle
           }
         }
@@ -288,9 +288,9 @@ void manager::update() {
         if(j == i) {
           continue;
         }
-        float const dist_sq = (positions[j] - position).length_sq();
+        float const dist_sq{(positions[j] - position).length_sq()};
         if(dist_sq < collision_avoidance_range_sq) {
-          float const acc = collision_avoidance_scale / dist_sq;
+          float const acc{collision_avoidance_scale / dist_sq};
           acceleration += (positions[j] - position).normalise_copy() * -acc;    // division by zero possible - assuming we never overlap another boid
         }
       }
@@ -307,7 +307,7 @@ void manager::update() {
     {
       // calculate velocity matching acceleration
       vec3f flock_velocity;
-      unsigned int flock_count = 0;
+      unsigned int flock_count{0};
       vec3i const velocity_matching_grid_cell(velocity_matching_grid.get_cell(positions[i]));
       // TODO: combine the above with the grid update below
       update_grid_neighbour_boids(velocity_matching_grid_cell, velocity_matching_grid);
@@ -315,9 +315,9 @@ void manager::update() {
         if(j == i) {
           continue;
         }
-        float const dist_sq = (positions[j] - position).length_sq();
+        float const dist_sq{(positions[j] - position).length_sq()};
         if(dist_sq < velocity_matching_range_sq) {
-          float const acc = 1.0f / dist_sq;
+          float const acc{1.0f / dist_sq};
           flock_velocity += velocities[j] + acc;
           ++flock_count;
         }
@@ -339,7 +339,7 @@ void manager::update() {
     {
       // calculate flock centering acceleration
       vec3f flock_centroid;
-      unsigned int flock_count = 0;
+      unsigned int flock_count{0};
       vec3i const flock_centering_grid_cell(flock_centering_grid.get_cell(positions[i]));
       // TODO: combine the above with the grid update below
       update_grid_neighbour_boids(flock_centering_grid_cell, flock_centering_grid);
@@ -347,7 +347,7 @@ void manager::update() {
         if(j == i) {
           continue;
         }
-        float const dist_sq = (positions[j] - position).length_sq();
+        float const dist_sq{(positions[j] - position).length_sq()};
         if(dist_sq < flock_centering_range_sq) {
           flock_centroid += positions[j];
           ++flock_count;
@@ -356,7 +356,7 @@ void manager::update() {
       if(flock_count != 0) {
         flock_centroid /= static_cast<float>(flock_count);
         vec3f const offset_from_flock_centroid(flock_centroid - position);
-        float const acc = flock_centering_scale / offset_from_flock_centroid.length_sq();
+        float const acc{flock_centering_scale / offset_from_flock_centroid.length_sq()};
         acceleration += offset_from_flock_centroid.normalise_safe_copy() * acc;
       }
     }
