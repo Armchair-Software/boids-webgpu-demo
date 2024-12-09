@@ -27,6 +27,8 @@ class game_manager {
   unsigned int frames_between_boids_updates{10};
   unsigned int frames_since_last_boids_update{0};
 
+  unsigned int boids_to_update_per_tick{boids.num_boids / frames_between_boids_updates};
+
   float world_scale{4.0f};
 
   void loop_main();
@@ -38,8 +40,12 @@ public:
 game_manager::game_manager() {
   /// Run the game
   std::mt19937::result_type seed{1234};
-  boids.distribute_boids_randomly(aabb3f(10.0f, 0.0f, -10.0f, 0.0f, 10.0f, 0.0f), seed);
+  boids.distribute_boids_randomly(aabb3f{-50.0f, -100.0f, 50.0f, 50.0f, -80.0f, 150.0f}, seed);
   boids.goal_position.assign(0.0f, -50.0f, 100.0f);
+  for(unsigned int i{0}; i != boids.num_boids; ++i) {
+    boid_positions_next[i] = boids.get_position(i) * world_scale;
+    boid_positions_last[i] = boid_positions_next[i];
+  }
 
   renderer.init(
     [&](render::webgpu_renderer::webgpu_data const& webgpu){
@@ -61,8 +67,7 @@ void game_manager::loop_main() {
   /// Main pseudo-loop
   if(frames_since_last_boids_update == frames_between_boids_updates) {
     // update the interpolation start and end points
-    boids.update();
-    // TODO: update in sections to amortise cpu load
+    boids.update_partial_finalise();
 
     std::swap(boid_positions_last, boid_positions_next);
     for(unsigned int i{0}; i != boids.num_boids; ++i) {
@@ -71,7 +76,9 @@ void game_manager::loop_main() {
     }
     frames_since_last_boids_update = 0;
   } else {
-    // interpolate boid positions in the interim between update ticks
+    // interpolate boid positions in sections each frame
+    boids.update_partial(boids_to_update_per_tick * frames_since_last_boids_update, boids_to_update_per_tick * (frames_since_last_boids_update + 1));
+
     auto const factor{static_cast<float>(frames_since_last_boids_update) / static_cast<float>(frames_between_boids_updates)};
     for(unsigned int i{0}; i != boids.num_boids; ++i) {
       boid_positions_current[i] = boid_positions_last[i].lerp(factor, boid_positions_next[i]);
