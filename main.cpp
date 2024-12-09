@@ -4,32 +4,15 @@
 #include <emscripten/html5.h>
 #include <imgui/imgui_impl_wgpu.h>
 #include "logstorm/logstorm.h"
-#include "vectorstorm/aabb/aabb3.h"
-#include "vectorstorm/vector/vector3.h"
-#include "flockstorm/flockstorm.h"
 #include "gui/gui_renderer.h"
 #include "render/webgpu_renderer.h"
+#include "boids.h"
 
 class game_manager {
-  #ifdef NDEBUG
-    flockstorm::manager boids{5'000};
-  #else
-    flockstorm::manager boids{1'000};
-  #endif // NDEBUG
-
   logstorm::manager logger{logstorm::manager::build_with_sink<logstorm::sink::console>()}; // logging system
-  render::webgpu_renderer renderer{logger, boids.num_boids};                    // WebGPU rendering system
-  gui::gui_renderer gui{logger};                                                // GUI top level
-
-  std::vector<vec3f> boid_positions_last{boids.num_boids};
-  std::vector<vec3f> boid_positions_next{boids.num_boids};
-  std::vector<vec3f> boid_positions_current{boids.num_boids};
-  unsigned int frames_between_boids_updates{10};
-  unsigned int frames_since_last_boids_update{0};
-
-  unsigned int boids_to_update_per_tick{boids.num_boids / frames_between_boids_updates};
-
-  float world_scale{4.0f};
+  boids_manager boids;
+  render::webgpu_renderer renderer{logger, boids.flock.num_boids};              // WebGPU rendering system
+  gui::gui_renderer gui{logger, boids};                                         // GUI top level
 
   void loop_main();
 
@@ -39,14 +22,6 @@ public:
 
 game_manager::game_manager() {
   /// Run the game
-  std::mt19937::result_type seed{1234};
-  boids.distribute_boids_randomly(aabb3f{-50.0f, -100.0f, 50.0f, 50.0f, -80.0f, 150.0f}, seed);
-  boids.goal_position.assign(0.0f, -50.0f, 100.0f);
-  for(unsigned int i{0}; i != boids.num_boids; ++i) {
-    boid_positions_next[i] = boids.get_position(i) * world_scale;
-    boid_positions_last[i] = boid_positions_next[i];
-  }
-
   renderer.init(
     [&](render::webgpu_renderer::webgpu_data const& webgpu){
       ImGui_ImplWGPU_InitInfo imgui_wgpu_info;
@@ -65,29 +40,10 @@ game_manager::game_manager() {
 
 void game_manager::loop_main() {
   /// Main pseudo-loop
-  if(frames_since_last_boids_update == frames_between_boids_updates) {
-    // update the interpolation start and end points
-    boids.update_partial_finalise();
-
-    std::swap(boid_positions_last, boid_positions_next);
-    for(unsigned int i{0}; i != boids.num_boids; ++i) {
-      boid_positions_next[i] = boids.get_position(i) * world_scale;
-      boid_positions_current[i] = boid_positions_last[i];
-    }
-    frames_since_last_boids_update = 0;
-  } else {
-    // interpolate boid positions in sections each frame
-    boids.update_partial(boids_to_update_per_tick * frames_since_last_boids_update, boids_to_update_per_tick * (frames_since_last_boids_update + 1));
-
-    auto const factor{static_cast<float>(frames_since_last_boids_update) / static_cast<float>(frames_between_boids_updates)};
-    for(unsigned int i{0}; i != boids.num_boids; ++i) {
-      boid_positions_current[i] = boid_positions_last[i].lerp(factor, boid_positions_next[i]);
-    }
-    ++frames_since_last_boids_update;
-  }
+  boids.update();
 
   gui.draw();
-  renderer.draw(boid_positions_current);
+  renderer.draw(boids.boid_positions_current);
 }
 
 auto main()->int {
