@@ -12,7 +12,7 @@
 
 class game_manager {
   #ifdef NDEBUG
-    flockstorm::manager boids{2000};
+    flockstorm::manager boids{2500};
   #else
     flockstorm::manager boids{500};
   #endif // NDEBUG
