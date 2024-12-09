@@ -238,8 +238,15 @@ void manager::dump_grid_memory_usage() {
 }
 
 void manager::update() {
-  /// Update boids
-  for(unsigned int i = 0; i != num_boids; ++i) {
+  /// Update all boids in a single step
+  update_partial(0, num_boids);
+  update_partial_finalise();
+}
+
+void manager::update_partial(unsigned int begin, unsigned int end) {
+  /// Update boids in partial subsets - use this to amortise update costs across multiple frames.
+  /// Call update_partial_finalise() when all subsets of boids have been updated.
+  for(unsigned int i{begin}; i != end; ++i) {
     // calculate accelerations on this boid this tick
     auto const &position{positions[i]};
     //auto const &velocity{velocities[i]};
@@ -384,7 +391,10 @@ void manager::update() {
       continue;                                                                 // we can't accumulate any more accelerations here, so early exit
     }
   }
+}
 
+void manager::update_partial_finalise() {
+  /// If updating in partial sections, finalise the update once all boid subsets have been updated
   // apply motion
   for(unsigned int i{0}; i != num_boids; ++i) {
     auto &position{positions[i]};

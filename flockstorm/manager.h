@@ -91,6 +91,9 @@ public:
   void dump_grid_memory_usage();
 
   void update();
+
+  void update_partial(unsigned int begin, unsigned int end);
+  void update_partial_finalise();
 };
 
 }
