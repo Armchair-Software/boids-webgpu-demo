@@ -24,6 +24,8 @@ class game_manager {
   std::vector<vec3f> boid_positions_last{boids.num_boids};
   std::vector<vec3f> boid_positions_next{boids.num_boids};
   std::vector<vec3f> boid_positions_current{boids.num_boids};
+  unsigned int frames_between_boids_updates{10};
+  unsigned int frames_since_last_boids_update{0};
 
   float world_scale{4.0f};
 
@@ -57,14 +59,24 @@ game_manager::game_manager() {
 
 void game_manager::loop_main() {
   /// Main pseudo-loop
-  boids.update();
-  // TODO: periodic update
-  // TODO: update in sections to amortise cpu load
+  if(frames_since_last_boids_update == frames_between_boids_updates) {
+    // update the interpolation start and end points
+    boids.update();
+    // TODO: update in sections to amortise cpu load
 
-  std::swap(boid_positions_last, boid_positions_next);
-  for(unsigned int i{0}; i != boids.num_boids; ++i) {
-    boid_positions_next[i] = boids.get_position(i) * world_scale;
-    boid_positions_current[i] = boid_positions_last[i];
+    std::swap(boid_positions_last, boid_positions_next);
+    for(unsigned int i{0}; i != boids.num_boids; ++i) {
+      boid_positions_next[i] = boids.get_position(i) * world_scale;
+      boid_positions_current[i] = boid_positions_last[i];
+    }
+    frames_since_last_boids_update = 0;
+  } else {
+    // interpolate boid positions in the interim between update ticks
+    auto const factor{static_cast<float>(frames_since_last_boids_update) / static_cast<float>(frames_between_boids_updates)};
+    for(unsigned int i{0}; i != boids.num_boids; ++i) {
+      boid_positions_current[i] = boid_positions_last[i].lerp(factor, boid_positions_next[i]);
+    }
+    ++frames_since_last_boids_update;
   }
 
   gui.draw();

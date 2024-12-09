@@ -881,7 +881,7 @@ void webgpu_renderer::draw(std::vector<vec3f> const &boid_positions) {
     {
       // set up matrices
       static vec2f angles;
-      angles.x += 0.01f;                                                        // constant slow spin
+      //angles.x += 0.01f;                                                        // constant slow spin
       quatf model_rotation{quatf::from_euler_angles_rad(0.0, angles.x, 0.0)};
 
       vec3f camera_pos{0.0f, 10.0f, -25.0f};
