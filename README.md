@@ -10,7 +10,7 @@ For the other demos, see:
 - https://github.com/Armchair-Software/webgpu-shader-demo
 - https://github.com/Armchair-Software/chatgpt-emscripten-demo
 
-![image](https://github.com/user-attachments/assets/55220585-f1f7-499b-ab94-20761f0bddfc)
+![gif](https://github.com/user-attachments/assets/3737d8b8-1263-4802-a50d-ad85d39659d1)
 
 ## Live demo
 Live demo: https://armchair-software.github.io/boids-webgpu-demo/
