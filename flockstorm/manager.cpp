@@ -386,25 +386,30 @@ void manager::update() {
   }
 
   // apply motion
-  for(unsigned int i = 0; i != num_boids; ++i) {
+  for(unsigned int i{0}; i != num_boids; ++i) {
+    auto &position{positions[i]};
+    auto &velocity{velocities[i]};
+    auto const &acceleration{accelerations[i]};
+
     // TODO: simd-ify this
     // update velocities
-    velocities[i] += accelerations[i];
+    velocity += acceleration;
     // apply damping
-    velocities[i] *= damping_factor;
-    positions[i] += velocities[i];
+    velocity *= damping_factor;
+    position += velocity;
     #ifdef DEBUG_FLOCKSTORM
-      std::cout << "FlockStorm: DEBUG: Boid " << i << ": final acceleration " << accelerations[i] << std::endl;
-      std::cout << "FlockStorm: DEBUG: Boid " << i << ": final velocity     " << velocities[i] << std::endl;
-      std::cout << "FlockStorm: DEBUG: Boid " << i << ": final position     " << positions[i] << std::endl;
+      std::cout << "FlockStorm: DEBUG: Boid " << i << ": final acceleration " << acceleration << std::endl;
+      std::cout << "FlockStorm: DEBUG: Boid " << i << ": final velocity     " << velocity << std::endl;
+      std::cout << "FlockStorm: DEBUG: Boid " << i << ": final position     " << position << std::endl;
     #endif // DEBUG_FLOCKSTORM
   }
 
   // update grid cells if necessary
   for(unsigned int i = 0; i != num_boids; ++i) {
-    collision_avoidance_grid.update(i, positions[i]);
-    velocity_matching_grid.update(  i, positions[i]);
-    flock_centering_grid.update(    i, positions[i]);
+    auto const &position{positions[i]};
+    collision_avoidance_grid.update(i, position);
+    velocity_matching_grid.update(  i, position);
+    flock_centering_grid.update(    i, position);
   }
 }
 
