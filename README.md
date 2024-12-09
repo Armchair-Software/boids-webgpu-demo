@@ -4,9 +4,11 @@ This is a demonstration of [FlockStorm](https://github.com/VoxelStorm-Ltd/flocks
 
 This also (incidentally) demonstrates packaging for native platforms with Electron, and building those packages in CI steps.  Those parts aren't necessary for the main demo, however.
 
-For the previous demos, see:
+For the other demos, see:
 - https://github.com/Armchair-Software/webgpu-demo
 - https://github.com/Armchair-Software/webgpu-demo2
+- https://github.com/Armchair-Software/webgpu-shader-demo
+- https://github.com/Armchair-Software/chatgpt-emscripten-demo
 
 ![image](https://github.com/user-attachments/assets/55220585-f1f7-499b-ab94-20761f0bddfc)
 
