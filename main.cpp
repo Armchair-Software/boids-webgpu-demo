@@ -12,9 +12,9 @@
 
 class game_manager {
   #ifdef NDEBUG
-    flockstorm::manager boids{2500};
+    flockstorm::manager boids{5'000};
   #else
-    flockstorm::manager boids{500};
+    flockstorm::manager boids{1'000};
   #endif // NDEBUG
 
   logstorm::manager logger{logstorm::manager::build_with_sink<logstorm::sink::console>()}; // logging system
