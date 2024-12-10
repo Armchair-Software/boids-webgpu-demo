@@ -42,7 +42,7 @@ void gui_renderer::draw() {
 
 void gui_renderer::draw_boids_params_window() {
   /// Draw the boids parameters window
-  if(!ImGui::Begin("Chat")) {
+  if(!ImGui::Begin("Boids Parameters")) {
     ImGui::End();
     return;
   }
@@ -62,6 +62,24 @@ void gui_renderer::draw_boids_params_window() {
   // TODO: float world_scale{4.0f};
 
   // TODO: collapsing section flockstorm
+
+
+
+  if(ImGui::DragFloat("Collision avoidance range", &boids.flock.collision_avoidance_range, 0.001f, 0.0f, 0.0f)) boids.flock.update_precomputed_quantities();
+  if(ImGui::DragFloat("Collision avoidance scale", &boids.flock.collision_avoidance_scale, 0.001f, 0.0f, 0.0f)) boids.flock.update_precomputed_quantities();
+  if(ImGui::DragFloat("Velocity matching range",   &boids.flock.velocity_matching_range,   0.001f, 0.0f, 0.0f)) boids.flock.update_precomputed_quantities();
+  if(ImGui::DragFloat("Velocity matching scale",   &boids.flock.velocity_matching_scale,   0.001f, 0.0f, 0.0f)) boids.flock.update_precomputed_quantities();
+  if(ImGui::DragFloat("Flock centering range",     &boids.flock.flock_centering_range,     0.001f, 0.0f, 0.0f)) boids.flock.update_precomputed_quantities();
+  if(ImGui::DragFloat("Flock centering scale",     &boids.flock.flock_centering_scale,     0.001f, 0.0f, 0.0f)) boids.flock.update_precomputed_quantities();
+  if(ImGui::DragFloat("Goal seeking scale",        &boids.flock.goal_seeking_scale,        0.001f, 0.0f, 0.0f)) boids.flock.update_precomputed_quantities();
+  if(ImGui::DragFloat("Acceleration maximum",      &boids.flock.acceleration_max,          0.001f, 0.0f, 0.0f)) boids.flock.update_precomputed_quantities();
+  if(ImGui::DragFloat("Damping factor",            &boids.flock.damping_factor,            0.001f, 0.0f, 0.0f)) boids.flock.update_precomputed_quantities();
+  //if(ImGui::DragFloat("Speed limit maximum",      flock.speed_limit_max,            0.01f,  0.0f, 0.0f)) flock.update_precomputed_quantities();
+  //if(ImGui::DragFloat("Speed limit minimum",      flock.speed_limit_min,            0.001f, 0.0f, 0.0f)) flock.update_precomputed_quantities();
+
+  ImGui::DragFloat3("Goal position", &boids.flock.goal_position[0]);
+
+  // TODO: obstacle sphere management: add, remove, move, scale
 
   // TODO: collapsing section positions
   // TODO: std::vector<vec3f> boid_positions_last{boids.num_boids};
