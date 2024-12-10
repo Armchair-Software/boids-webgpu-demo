@@ -12,7 +12,7 @@ public:
   // global simulation parameters
   unsigned int const num_boids{1000};
 
-  float collision_avoidance_range{3.5f};                                       // default values are optimised for ticks at 10Hz
+  float collision_avoidance_range{3.5f};                                        // default values are optimised for ticks at 10Hz
   float collision_avoidance_scale{0.10f};
   float velocity_matching_range{  5.0f};
   float velocity_matching_scale{  0.05f};
