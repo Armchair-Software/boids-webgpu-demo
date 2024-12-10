@@ -1,5 +1,4 @@
-#ifndef MEMORYSTORM_H_INCLUDED
-#define MEMORYSTORM_H_INCLUDED
+#pragma once
 
 /// Functionality for querying operating system memory across all platforms
 
@@ -28,5 +27,3 @@ void dump_stats();
 //   http://stackoverflow.com/questions/2513505/how-to-get-available-memory-c-g
 
 }
-
-#endif // MEMORYSTORM_MONITOR_H_INCLUDED
