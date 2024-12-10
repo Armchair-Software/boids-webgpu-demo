@@ -194,7 +194,7 @@ target_compile_options(client PRIVATE
   -Wold-style-cast
   -Woverloaded-virtual
   -Wpacked
-  #-Wpadded # useful to turn on occasionally until split - see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52981 and https://bugs.llvm.org/show_bug.cgi?id=22442
+  #-Wpadded                                                                      # useful to turn on occasionally until split - see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52981 and https://bugs.llvm.org/show_bug.cgi?id=22442
   -Wpointer-arith
   -Wrange-loop-analysis
   -Wredundant-decls
@@ -207,7 +207,7 @@ target_compile_options(client PRIVATE
   -Wuninitialized
   -Wunused
   -Wzero-as-null-pointer-constant
-  -Wno-braced-scalar-init  # suppression for clang bug https://github.com/llvm/llvm-project/issues/57286
+  -Wno-braced-scalar-init                                                       # suppression for clang bug https://github.com/llvm/llvm-project/issues/57286
 )
 # suppress warnings for external libraries built as part of include
 file(GLOB_RECURSE include_files include/*)
@@ -223,12 +223,12 @@ target_link_options(client PRIVATE
   -sELIMINATE_DUPLICATE_FUNCTIONS=1
   -sUSE_WEBGPU
   -sFETCH=1
+  -sFETCH_SUPPORT_INDEXEDDB=0                                                   # needed pending resolution of https://github.com/emscripten-core/emscripten/issues/23124
   -sUSE_FREETYPE=1
   ${exception_link_options}
   -sEXPORTED_RUNTIME_METHODS=[ccall]
   -sLLD_REPORT_UNDEFINED
-  # don't emit code for node.js etc
-  -sENVIRONMENT=web
+  -sENVIRONMENT=web                                                             # don't emit code for node.js etc
   --shell-file=${CMAKE_SOURCE_DIR}/html/client.html
   # embedded files
   --preload-file ../assets@/
