@@ -1,5 +1,4 @@
-#ifndef FLOCKSTORM_MANAGER_H_INCLUDED
-#define FLOCKSTORM_MANAGER_H_INCLUDED
+#pragma once
 
 #include <random>
 #include "vectorstorm/aabb/aabb3_forward.h"
@@ -97,5 +96,3 @@ public:
 };
 
 }
-
-#endif // FLOCKSTORM_MANAGER_H_INCLUDED
