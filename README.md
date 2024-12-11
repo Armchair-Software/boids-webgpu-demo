@@ -1,3 +1,5 @@
+[![CI Build](https://github.com/Armchair-Software/boids-webgpu-demo/actions/workflows/ci-build.yml/badge.svg)](https://github.com/Armchair-Software/boids-webgpu-demo/actions)
+
 # Boids demo with WebGPU & Emscripten for the Armchair Engine
 
 This is a demonstration of [FlockStorm](https://github.com/VoxelStorm-Ltd/flockstorm) running on the basic WebGPU engine demonstrated in the earlier demos.
