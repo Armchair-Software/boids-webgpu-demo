@@ -10,6 +10,11 @@
   #define PLATFORM_LINUX
 #endif
 
+#ifdef __EMSCRIPTEN__
+  // note this is NOT mutually exclusive with the platforms above; PLATFORM_LINUX will usually also be defined
+  #define PLATFORM_EMSCRIPTEN
+#endif
+
 #if defined(__x86_64__) || defined(_M_X64)
   #define PLATFORM_64BIT
 #else

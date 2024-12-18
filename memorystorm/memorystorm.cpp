@@ -10,7 +10,13 @@
 #elif defined(PLATFORM_LINUX)
   #include <cstring>
   #include <sys/resource.h>
-  #include <sys/sysinfo.h>
+  #if defined(PLATFORM_EMSCRIPTEN)
+    #include <malloc.h>
+    #include <emscripten/heap.h>
+    #include <emscripten/stack.h>
+  #else
+    #include <sys/sysinfo.h>
+  #endif // defined(PLATFORM_EMSCRIPTEN)
   #include <unistd.h>
 #elif defined(PLATFORM_MACOS)
   //#include <sys/types.h>
@@ -22,7 +28,7 @@
   //#include <mach/mach_host.h>
 #else
   #error "Compilation platform could not be determined.  Make sure platform_defines.h is included and up to date."
-#endif // defined
+#endif
 
 namespace memorystorm {
 
@@ -33,14 +39,14 @@ uint64_t get_stack_available() {
     VirtualQuery((PVOID)&mbi, &mbi, sizeof(mbi));                               // get range
     return (UINT_PTR)&mbi - (UINT_PTR)mbi.AllocationBase;                       // subtract from top (stack grows downward on win)
   #elif defined(PLATFORM_LINUX) || defined(PLATFORM_MACOS)
-    #if defined(__EMSCRIPTEN__)
-      return 0;
+    #if defined(PLATFORM_EMSCRIPTEN)
+      return emscripten_stack_get_free();
     #else
       rlimit limit;                                                             // hard limit and soft limit
       getrlimit(RLIMIT_STACK, &limit);                                          // stack size availability
       return std::min(limit.rlim_cur, limit.rlim_max);                          // return the smallest of the two
-    #endif // defined
-  #endif // defined
+    #endif // defined(PLATFORM_EMSCRIPTEN)
+  #endif
 }
 
 uint64_t get_physical_total() {
@@ -51,8 +57,8 @@ uint64_t get_physical_total() {
     GlobalMemoryStatusEx(&status);
     return cast_if_required<uint64_t>(status.ullTotalPhys);                     // physical memory
   #elif defined(PLATFORM_LINUX)
-    #if defined(__EMSCRIPTEN__)
-      return 0;
+    #if defined(PLATFORM_EMSCRIPTEN)
+      return emscripten_get_heap_max();
     #else
       //uint64_t pages = sysconf(_SC_PHYS_PAGES);
       //uint64_t page_size = sysconf(_SC_PAGE_SIZE);
@@ -63,7 +69,7 @@ uint64_t get_physical_total() {
       uint64_t result = info.totalram;
       result *= info.mem_unit;                                                  // don't collapse this to avoid int overflow on rhs
       return result;
-    #endif // defined
+    #endif // defined(PLATFORM_EMSCRIPTEN)
   #elif defined(PLATFORM_MACOS)
     int64_t result;
     size_t length = sizeof(result);
@@ -72,7 +78,7 @@ uint64_t get_physical_total() {
     mib[1] = HW_MEMSIZE;
     sysctl(mib, 2, &result, &length, NULL, 0);
     return result;
-  #endif // defined
+  #endif
 }
 uint64_t get_physical_available() {
   /// Fetch the available memory of the system
@@ -82,15 +88,16 @@ uint64_t get_physical_available() {
     GlobalMemoryStatusEx(&status);
     return cast_if_required<uint64_t>(status.ullAvailPhys);                     // physical memory
   #elif defined(PLATFORM_LINUX)
-    #if defined(__EMSCRIPTEN__)
-      return 0;
+    #if defined(PLATFORM_EMSCRIPTEN)
+      //return static_cast<uint64_t>(mallinfo().fordblks);
+      return get_physical_total() - get_physical_usage();
     #else
       struct sysinfo info;
       sysinfo(&info);
       uint64_t totalVirtualMem = info.freeram;
       totalVirtualMem *= info.mem_unit;                                         // don't collapse this to avoid int overflow on rhs
       return totalVirtualMem;
-    #endif // defined
+    #endif // defined(PLATFORM_EMSCRIPTEN)
   #elif defined(PLATFORM_MACOS)
     mach_port_t mach_port;
     mach_port = mach_host_self();
@@ -103,7 +110,7 @@ uint64_t get_physical_available() {
     } else {
       return 0;
     }
-  #endif // defined
+  #endif
 }
 uint64_t get_physical_usage() {
   /// Fetch the memory used by this process
@@ -112,13 +119,13 @@ uint64_t get_physical_usage() {
     GetProcessMemoryInfo(GetCurrentProcess(), &counters, sizeof(counters));
     return counters.WorkingSetSize;                                             // physical memory used
   #elif defined(PLATFORM_LINUX)
-    #if defined(__EMSCRIPTEN__)
-      return 0;
+    #if defined(PLATFORM_EMSCRIPTEN)
+      return static_cast<uint64_t>(mallinfo().uordblks);
     #else
       FILE *file = fopen("/proc/self/status", "r");
       uint64_t result = 0;
       char line[128];
-      while(fgets(line, 128, file) != NULL) {
+      while(fgets(line, 128, file) != nullptr) {
         if(strncmp(line, "VmRSS:", 6) == 0) {
           char *templine = line;
           size_t const length = strlen(templine);
@@ -132,7 +139,7 @@ uint64_t get_physical_usage() {
       }
       fclose(file);
       return result;
-    #endif // defined
+    #endif // defined(PLATFORM_EMSCRIPTEN)
   #elif defined(PLATFORM_MACOS)
     struct task_basic_info info;
     mach_msg_type_number_t info_count = TASK_BASIC_INFO_COUNT;
@@ -140,7 +147,7 @@ uint64_t get_physical_usage() {
       return 0;
     }
     return info.resident_size;
-  #endif // defined
+  #endif
 }
 
 uint64_t get_virtual_total() {
@@ -151,8 +158,8 @@ uint64_t get_virtual_total() {
     GlobalMemoryStatusEx(&status);
     return cast_if_required<uint64_t>(status.ullTotalPageFile);                 // total virtual memory (including swapfiles)
   #elif defined(PLATFORM_LINUX)
-    #if defined(__EMSCRIPTEN__)
-      return 0;
+    #if defined(PLATFORM_EMSCRIPTEN)
+      return emscripten_get_heap_max();
     #else
       struct sysinfo info;
       sysinfo(&info);
@@ -160,7 +167,7 @@ uint64_t get_virtual_total() {
       result += info.totalswap;                                                 // Add other values in next statement to avoid int overflow on right hand side...
       result *= info.mem_unit;
       return result;
-    #endif // defined
+    #endif // defined(PLATFORM_EMSCRIPTEN)
   #elif defined(PLATFORM_MACOS)
     xsw_usage xsu = {0, 0, 0, 0, 0};
     size_t size = sizeof(xsu);
@@ -168,7 +175,7 @@ uint64_t get_virtual_total() {
       perror("unable to get swap usage by calling sysctlbyname(\"vm.swapusage\",...)");
     }
     return xsu.xsu_total;
-  #endif // defined
+  #endif
 }
 uint64_t get_virtual_available() {
   /// Fetch the available memory of the system
@@ -178,8 +185,9 @@ uint64_t get_virtual_available() {
     GlobalMemoryStatusEx(&status);
     return cast_if_required<uint64_t>(status.ullAvailPageFile);                 // available virtual memory (including swapfiles)
   #elif defined(PLATFORM_LINUX)
-    #if defined(__EMSCRIPTEN__)
-      return 0;
+    #if defined(PLATFORM_EMSCRIPTEN)
+      //return emscripten_get_heap_size();
+      return get_virtual_total() - get_virtual_usage();
     #else
       struct sysinfo info;
       sysinfo(&info);
@@ -187,7 +195,7 @@ uint64_t get_virtual_available() {
       result += info.freeswap;                                                  // Add other values in next statement to avoid int overflow on right hand side...
       result *= info.mem_unit;
       return result;
-    #endif // defined
+    #endif // defined(PLATFORM_EMSCRIPTEN)
   #elif defined(PLATFORM_MACOS)
     xsw_usage xsu = {0, 0, 0, 0, 0};
     size_t size = sizeof(xsu);
@@ -195,7 +203,7 @@ uint64_t get_virtual_available() {
       perror("unable to get swap usage by calling sysctlbyname(\"vm.swapusage\",...)");
     }
     return xsu.xsu_avail;
-  #endif // defined
+  #endif
 }
 uint64_t get_virtual_usage() {
   /// Fetch the memory used by this process
@@ -206,13 +214,13 @@ uint64_t get_virtual_usage() {
     GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&counters, sizeof(counters));
     return counters.PrivateUsage;                                               // virtual memory used
   #elif defined(PLATFORM_LINUX)
-    #if defined(__EMSCRIPTEN__)
-      return 0;
+    #if defined(PLATFORM_EMSCRIPTEN)
+      return static_cast<uint64_t>(mallinfo().uordblks);
     #else
       FILE *file = fopen("/proc/self/status", "r");
       uint64_t result = 0;
       char line[128];
-      while(fgets(line, 128, file) != NULL) {
+      while(fgets(line, 128, file) != nullptr) {
         if(strncmp(line, "VmSize:", 7) == 0) {
           char *templine = line;
           size_t const length = strlen(templine);
@@ -225,7 +233,7 @@ uint64_t get_virtual_usage() {
       }
       fclose(file);
       return result;
-    #endif // defined
+    #endif // defined(PLATFORM_EMSCRIPTEN)
   #elif defined(PLATFORM_MACOS)
     struct task_basic_info info;
     mach_msg_type_number_t info_count = TASK_BASIC_INFO_COUNT;
@@ -233,7 +241,7 @@ uint64_t get_virtual_usage() {
       return 0;
     }
     return info.virtual_size;
-  #endif // defined
+  #endif
 }
 
 std::string human_readable(uint64_t amount) {
