@@ -9,7 +9,7 @@
 #include "boids.h"
 
 class game_manager {
-  logstorm::manager logger{logstorm::manager::build_with_sink<logstorm::sink::console>()}; // logging system
+  logstorm::manager logger{logstorm::manager::build_with_sink<logstorm::sink::emscripten_out>()}; // logging system
   boids_manager boids;
   render::webgpu_renderer renderer{logger, boids.flock.num_boids};              // WebGPU rendering system
   gui::gui_renderer gui{logger, boids};                                         // GUI top level
