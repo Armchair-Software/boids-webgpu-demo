@@ -58,7 +58,14 @@ uint64_t get_physical_total() {
     return cast_if_required<uint64_t>(status.ullTotalPhys);                     // physical memory
   #elif defined(PLATFORM_LINUX)
     #if defined(PLATFORM_EMSCRIPTEN)
-      return emscripten_get_heap_max();
+      auto device_memory_gb{EM_ASM_INT(
+        return navigator.deviceMemory;
+      )};
+      if(device_memory_gb == 0) {                                               // if navigator.deviceMemory unsupported, fall back to emscripten's max heap
+        return emscripten_get_heap_max();
+      } else {
+        return static_cast<uint64_t>(device_memory_gb) * 1024u * 1024u * 1024u; // value is in gigabytes
+      }
     #else
       //uint64_t pages = sysconf(_SC_PHYS_PAGES);
       //uint64_t page_size = sysconf(_SC_PAGE_SIZE);
@@ -120,7 +127,14 @@ uint64_t get_physical_usage() {
     return counters.WorkingSetSize;                                             // physical memory used
   #elif defined(PLATFORM_LINUX)
     #if defined(PLATFORM_EMSCRIPTEN)
-      return static_cast<uint64_t>(mallinfo().uordblks);
+      auto used_js_heap_size{reinterpret_cast<uint64_t>(EM_ASM_PTR(
+        return performance.memory.usedJSHeapSize;
+      ))};
+      if(used_js_heap_size == 0) {                                              // if performance.memory isn't available, fall back to mallinfo
+        return static_cast<uint64_t>(mallinfo().uordblks);
+      } else {
+        return used_js_heap_size;
+      }
     #else
       FILE *file = fopen("/proc/self/status", "r");
       uint64_t result = 0;
@@ -159,7 +173,14 @@ uint64_t get_virtual_total() {
     return cast_if_required<uint64_t>(status.ullTotalPageFile);                 // total virtual memory (including swapfiles)
   #elif defined(PLATFORM_LINUX)
     #if defined(PLATFORM_EMSCRIPTEN)
-      return emscripten_get_heap_max();
+      auto total_js_heap_size{reinterpret_cast<uint64_t>(EM_ASM_PTR(
+        return performance.memory.totalJSHeapSize;
+      ))};
+      if(total_js_heap_size == 0) {                                             // if performance.memory isn't available, fall back to emscripten's heap max
+        return emscripten_get_heap_max();
+      } else {
+        return std::max(total_js_heap_size, static_cast<uint64_t>(emscripten_get_heap_max()));
+      }
     #else
       struct sysinfo info;
       sysinfo(&info);
@@ -215,7 +236,7 @@ uint64_t get_virtual_usage() {
     return counters.PrivateUsage;                                               // virtual memory used
   #elif defined(PLATFORM_LINUX)
     #if defined(PLATFORM_EMSCRIPTEN)
-      return static_cast<uint64_t>(mallinfo().uordblks);
+      return get_physical_usage();
     #else
       FILE *file = fopen("/proc/self/status", "r");
       uint64_t result = 0;
