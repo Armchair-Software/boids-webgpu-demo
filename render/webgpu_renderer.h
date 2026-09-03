@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+#include <vector>
 #include <emscripten/em_types.h>
 #include <webgpu/webgpu_cpp.h>
 #include "logstorm/logstorm_forward.h"
@@ -25,8 +27,6 @@ public:
     wgpu::BindGroupLayout bind_group_layout;                                    // layout for the uniform bind group
     wgpu::RenderPipeline pipeline;                                              // the render pipeline currently in use
 
-    wgpu::SwapChain swapchain;                                                  // the swapchain providing a texture view to render to
-
     wgpu::Texture depth_texture;                                                // depth buffer
     wgpu::TextureView depth_texture_view;
 
@@ -37,6 +37,15 @@ public:
     webgpu_data() = default;
     friend class webgpu_renderer;
   };
+
+  enum class states {
+    uninitialised,
+    ready_to_init,
+    waiting_for_device,
+    ready_to_configure,
+    ready_to_draw,
+    failed,
+  } state{states::uninitialised};
 
   // TODO, rearrange scene content meaningfully
   std::vector<wgpu::RenderBundle> render_bundles;
@@ -79,6 +88,7 @@ private:
   webgpu_data webgpu;
 
   struct window_data {
+    vec2ui css_viewport_size;                                                   // browser window viewport size in CSS pixels
     vec2ui viewport_size;                                                       // our idea of the size of the viewport we render to, in real pixels
     float device_pixel_ratio{1.0f};
   } window;
@@ -92,7 +102,7 @@ public:
   void init(std::function<void(webgpu_data const&)> &&postinit_callback, std::function<void()> &&main_loop_callback);
 
 private:
-  void init_swapchain();
+  void configure_surface();
   void init_depth_texture();
 
   void wait_to_configure_loop();

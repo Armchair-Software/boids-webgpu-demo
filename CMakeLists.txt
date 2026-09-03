@@ -164,6 +164,7 @@ target_compile_options(client PRIVATE
   # emscripten ports
   -sUSE_BOOST_HEADERS=1
   -sUSE_FREETYPE=1
+  --use-port=emdawnwebgpu
   ${exception_compile_options}
   # errors
   -Wfatal-errors
@@ -217,9 +218,8 @@ target_link_options(client PRIVATE
   -lwebsocket.js
   -sALLOW_MEMORY_GROWTH=1
   -sSTACK_SIZE=5mb
-  -sWASM_BIGINT
   -sELIMINATE_DUPLICATE_FUNCTIONS=1
-  -sUSE_WEBGPU
+  --use-port=emdawnwebgpu
   -sFETCH=1
   -sFETCH_SUPPORT_INDEXEDDB=0                                                   # needed pending resolution of https://github.com/emscripten-core/emscripten/issues/23124
   -sUSE_FREETYPE=1
