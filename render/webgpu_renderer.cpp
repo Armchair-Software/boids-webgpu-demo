@@ -272,10 +272,10 @@ void webgpu_renderer::init(std::function<void(webgpu_data const&)> &&this_postin
         #endif // DEBUG_WEBGPU
 
         wgpu::Limits adapter_limits;
-        wgpu::Status const status{adapter.GetLimits(&adapter_limits)};
-        if(status != wgpu::Status::Success) throw std::runtime_error{"WebGPU: Could not query adapter limits"};
+        wgpu::Status const limits_status{adapter.GetLimits(&adapter_limits)};
+        if(limits_status != wgpu::Status::Success) throw std::runtime_error{"WebGPU: Could not query adapter limits"};
         #ifdef DEBUG_WEBGPU
-          logger << "DEBUG: WebGPU adapter limits status: " << enum_wgpu_name(status);
+          logger << "DEBUG: WebGPU adapter limits status: " << enum_wgpu_name(limits_status);
           logger << "DEBUG: WebGPU adapter limits nextInChain: " << adapter_limits.nextInChain;
           logger << "DEBUG: WebGPU adapter limits maxTextureDimension1D: " << adapter_limits.maxTextureDimension1D;
           logger << "DEBUG: WebGPU adapter limits maxTextureDimension2D: " << adapter_limits.maxTextureDimension2D;
@@ -405,8 +405,8 @@ void webgpu_renderer::init(std::function<void(webgpu_data const&)> &&this_postin
               }
               {
                 wgpu::Limits device_limits;
-                wgpu::Status const status{device.GetLimits(&device_limits)};
-                logger << "DEBUG: WebGPU device limits status: " << enum_wgpu_name(status);
+                wgpu::Status const limits_status{device.GetLimits(&device_limits)};
+                logger << "DEBUG: WebGPU device limits status: " << enum_wgpu_name(limits_status);
                 logger << "DEBUG: WebGPU device limits nextInChain: " << device_limits.nextInChain;
                 logger << "DEBUG: WebGPU device limits maxTextureDimension1D: " << device_limits.maxTextureDimension1D;
                 logger << "DEBUG: WebGPU device limits maxTextureDimension2D: " << device_limits.maxTextureDimension2D;
